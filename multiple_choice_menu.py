@@ -14,31 +14,29 @@ class MultipleChoiceMenu:
 
   def display_options(self, options):
     for i, option in enumerate(options):
-      print(f"{i+1}. {option.text}")
+      text += f"{i+1}. {option.text}\n"
+    return text
 
-  def navigate(self, node):
+  def navigate(self, update, context, node):
     while True:
-      self.display_options(node.children)
-      choice = input("Enter your choice: ")
+      # Display the menu options and get the user's response
+      options = self.display_options(node.children)
+      update.message.reply_text(options)
+      response = context.bot.wait_for_message(
+          check=lambda message: message.chat_id == update.message.chat_id)
       try:
-        choice = int(choice)
+        # Convert the user's response to an integer
+        choice = int(response.text)
         chosen_option = node.children[choice-1]
         if chosen_option.children:
+          # If the chosen option has children, navigate to the next menu level
           node = chosen_option
         else:
+          # If the chosen option doesn't have children, execute the action
           chosen_option.action()
           break
       except ValueError:
-        print("Invalid input. Please enter a valid number.")
+        update.message.reply_text("Invalid input. Please enter a valid number.")
       except IndexError:
-        print("Invalid choice. Please enter a valid number.")
-        
-  def display_menu(menu):
-  # Display the menu options
-    options = menu.display_options()
-  Update.message.reply_text(options)
-  # Wait for user's response
-  response = context.bot.wait_for_message(
-      check=lambda message: message.chat_id == update.message.chat_id)
-  # Handle the user's response
-  menu.navigate(response.text)
+        update.message.reply_text("Invalid choice. Please enter a valid number.")
+    

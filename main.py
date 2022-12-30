@@ -1,4 +1,6 @@
 # In main.py
+import os
+
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -27,8 +29,7 @@ def create_account(update, context):
   # Prompt user to enter their name, email, and password
   update.message.reply_text("Please enter your name, email, and password, separated by spaces.")
   # Wait for user's response
-  name, email, password = context.bot.wait_for(
-      'message', check=lambda message: message.chat_id == update.message.chat_id)
+  name, email, password = context.bot.wait_for_message(check=lambda message: message.chat_id == update.message.chat_id).text.split()
   name = name.strip()
   email = email.strip()
   password = password.strip()
@@ -40,8 +41,7 @@ def login(update, context):
   # Prompt user to enter their email and password
   update.message.reply_text("Please enter your email and password, separated by a space.")
   # Wait for user's response
-  email, password = context.bot.wait_for(
-      'message', check=lambda message: message.chat_id == update.message.chat_id)
+  email, password = context.bot.wait_for_message(check=lambda message: message.chat_id == update.message.chat_id).text.split()
   email = email.strip()
   password = password.strip()
   # Authenticate user
@@ -56,13 +56,14 @@ def menu(update, context):
   # Check if the user has a MultipleChoiceMenu object in the dictionary
   if chat_id in menu_dict:
     # Display the user's menu options
-    menu_dict[chat_id].display_options()
+    menu = menu_dict[chat_id]
   else:
     # Create a new MultipleChoiceMenu object for the user and add it to the dictionary
     menu = multiple_choice_menu.MultipleChoiceMenu()
     menu_dict[chat_id] = menu
-    # Display the user's menu options
-    menu.display_options()
+  # Display the menu options and handle the user's response
+  menu.navigate(update, context, menu.root)
+
 
 def create_checklist(update, context):
   # Prompt user to enter the name and description of their checklist
@@ -83,13 +84,13 @@ def create_task_habit(update, context):
   # Check if the user has a MultipleChoiceMenu object in the dictionary
   if chat_id in menu_dict:
     # Display the user's menu options
-    menu_dict[chat_id].display_options()
+    menu_dict[chat_id].display_menu()
   else:
     # Create a new MultipleChoiceMenu object for the user and add it to the dictionary
     menu = multiple_choice_menu.MultipleChoiceMenu()
     menu_dict[chat_id] = menu
     # Display the user's menu options
-    menu.display_options()
+    menu.display_menu(update, context)
   # Prompt user to enter the name, description, frequency, and priority of their task or habit
   update.message.reply_text("Please enter the name, description, frequency, and priority of your task or habit, separated by spaces. (Frequency should be 'daily' or 'weekly', priority should be a number from 1 to 5, with 1 being the highest priority.)")
   # Wait for user's response
@@ -199,4 +200,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-

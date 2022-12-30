@@ -16,25 +16,31 @@ class Habit:
 
 class TaskHabitDatabase:
   def __init__(self):
-    self.tasks = []
-    self.habits = []
+    self.tasks = {}
+    self.habits = {}
 
-  def add_task(self, name, description, priority):
+  def add_task(self, email, name, description, priority):
     task = Task(name, description, priority)
-    heapq.heappush(self.tasks, task)
+    if email in self.tasks:
+      heapq.heappush(self.tasks[email], task)
+    else:
+      self.tasks[email] = [task]
 
-  def update_task_status(self, task, status):
+  def update_task_status(self, email, task, status):
     task.status = status
 
-  def delete_task(self, task):
-    self.tasks.remove(task)
+  def delete_task(self, email, task):
+    self.tasks[email].remove(task)
 
-  def add_habit(self, name, description, frequency):
+  def add_habit(self, email, name, description, frequency):
     habit = Habit(name, description, frequency)
-    self.habits.append(habit)
+    if email in self.habits:
+      self.habits[email].append(habit)
+    else:
+      self.habits[email] = [habit]
 
-  def update_habit_status(self, habit, status):
+  def update_habit_status(self, email, habit, status):
     habit.status = status
 
-  def delete_habit(self, habit):
-    self.habits.remove(habit)
+  def delete_habit(self, email, habit):
+    self.habits[email].remove(habit)

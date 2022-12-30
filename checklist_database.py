@@ -7,19 +7,24 @@ class Checklist:
 
 class ChecklistDatabase:
   def __init__(self):
-    self.checklists = []
+    self.checklists = {}
 
-  def add_checklist(self, name, description):
+  def add_checklist(self, user, name, description):
     checklist = Checklist(name, description)
-    self.checklists.append(checklist)
+    if user in self.checklists:
+      self.checklists[user].append(checklist)
+    else:
+      self.checklists[user] = [checklist]
     return checklist
 
-  def get_checklist(self, name):
-    for checklist in self.checklists:
-      if checklist.name == name:
-        return checklist
+  def get_checklist(self, user, name):
+    if user in self.checklists:
+      for checklist in self.checklists[user]:
+        if checklist.name == name:
+          return checklist
     return None
 
-  def delete_checklist(self, checklist):
-    self.checklists.remove(checklist)
+  def delete_checklist(self, user, checklist):
+    if user in self.checklists:
+      self.checklists[user].remove(checklist)
 
